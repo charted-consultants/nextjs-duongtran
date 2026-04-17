@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:14
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-duongtran_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-duongtran2026_staging}
+      POSTGRES_DB: ${POSTGRES_DB:-duongtran_staging}
+    volumes:
+      - ${PGDATA_PATH:-/var/lib/duongtran_staging_pgdata}:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5450:5432"
+  app:
+    image: duongtran:staging
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-duongtran_user}:${POSTGRES_PASSWORD:-duongtran2026_staging}@db:5432/${POSTGRES_DB:-duongtran_staging}
+    env_file:
+      - .env
+    ports:
+      - "0.0.0.0:${PORT:-3032}:3000"
